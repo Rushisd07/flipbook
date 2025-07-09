@@ -1,151 +1,295 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import Contact from "./pages/Contact";
+import {
+  Box,
+  Container,
+  Typography,
+  AppBar,
+  Toolbar,
+  Tabs,
+  Tab,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  useMediaQuery,
+  useTheme,
+  Fab,
+} from "@mui/material";
+import {
+  Book,
+  Upload,
+  Visibility,
+  Menu as MenuIcon,
+  Home,
+  KeyboardArrowUp,
+} from "@mui/icons-material";
+import FlipbookGenerator from "./components/FlipbookGenerator";
+import FlipbookViewer from "./components/FlipbookViewer";
+import HomePage from "./components/HomePage";
+import ScrollTop from "./components/ScrollTop";
+import { useEffect } from "react";
 
-// Create a theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#3f51b5",
-    },
-    secondary: {
-      main: "#f50057",
-    },
-  },
-});
-
-// App content to have access to navigation
-const AppContent = () => {
+// Navigation component
+function Navigation() {
   const navigate = useNavigate();
-  const [lastCommand, setLastCommand] = useState("");
+  const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleVoiceCommand = (command, action, page, message) => {
-    setLastCommand(command);
+  const navigationItems = [
+    { label: "Home", path: "/", icon: <Home /> },
+    { label: "Generator", path: "/generator", icon: <Upload /> },
+    { label: "Viewer", path: "/viewer", icon: <Visibility /> },
+    // { label: "About", path: "/about", icon: <Info /> },
+    // { label: "Help", path: "/help", icon: <Help /> },
+    // { label: "Settings", path: "/settings", icon: <Settings /> },
+  ];
 
-    // Log voice command handling
-    console.log(
-      `Voice command handled: ${command}, action: ${action}, page: ${page}`
-    );
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
-    // If there's no action/page from backend, do some simple frontend recognition
-    if (!action && !page) {
-      const commandLower = command.toLowerCase();
-
-      if (commandLower.includes("home")) {
-        navigate("/");
-      } else if (commandLower.includes("about")) {
-        navigate("/about");
-      } else if (commandLower.includes("service")) {
-        navigate("/services");
-      } else if (commandLower.includes("contact")) {
-        navigate("/contact");
-      }
+  const handleTabChange = (event, newValue) => {
+    const selectedItem = navigationItems[newValue];
+    if (selectedItem) {
+      navigate(selectedItem.path);
     }
   };
 
+  const getCurrentTabIndex = () => {
+    const currentIndex = navigationItems.findIndex(
+      (item) => item.path === location.pathname
+    );
+    return currentIndex >= 0 ? currentIndex : 0;
+  };
+
+  // Mobile drawer content
+  const drawer = (
+    <Box sx={{ width: 250 }} role="presentation">
+      <Box sx={{ p: 2, borderBottom: "1px solid #e0e0e0" }}>
+        <Box display="flex" alignItems="center" gap={2}>
+          <Book sx={{ fontSize: 32, color: "#1976d2" }} />
+          <Typography variant="h6" fontWeight="bold">
+            FlipBook Studio
+          </Typography>
+        </Box>
+      </Box>
+      <List>
+        {navigationItems.map((item, index) => (
+          <ListItem
+            button
+            key={item.label}
+            onClick={() => {
+              navigate(item.path);
+              setMobileOpen(false);
+            }}
+            selected={location.pathname === item.path}
+            sx={{
+              "&.Mui-selected": {
+                backgroundColor: "rgba(25, 118, 210, 0.08)",
+                "& .MuiListItemIcon-root": {
+                  color: "#1976d2",
+                },
+                "& .MuiListItemText-primary": {
+                  color: "#1976d2",
+                  fontWeight: 600,
+                },
+              },
+            }}
+          >
+            <ListItemIcon>{item.icon}</ListItemIcon>
+            <ListItemText primary={item.label} />
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
+
   return (
     <>
-      <Navbar onVoiceCommand={handleVoiceCommand} />
-      <Routes>
-        <Route path="/" element={<Home lastCommand={lastCommand} />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/contact" element={<Contact />} />
-      </Routes>
+      <AppBar
+        position="sticky"
+        elevation={1}
+        sx={{ bgcolor: "white", color: "text.primary" }}
+      >
+        <Toolbar>
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+
+          <Box display="flex" alignItems="center" gap={2} flex={1}>
+            <Book sx={{ fontSize: 28, color: "#1976d2" }} />
+            <Typography
+              variant="h5"
+              component="h1"
+              sx={{
+                fontWeight: "bold",
+                background: "linear-gradient(45deg, #1976d2, #9c27b0)",
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                display: { xs: "none", sm: "block" },
+              }}
+            >
+              FlipBook Studio
+            </Typography>
+          </Box>
+
+          {!isMobile && (
+            <Tabs
+              value={getCurrentTabIndex()}
+              onChange={handleTabChange}
+              sx={{
+                "& .MuiTab-root": {
+                  minHeight: 64,
+                  textTransform: "none",
+                  fontSize: "1rem",
+                  fontWeight: 500,
+                },
+              }}
+            >
+              {navigationItems.slice(0, 4).map((item) => (
+                <Tab
+                  key={item.label}
+                  icon={item.icon}
+                  label={item.label}
+                  iconPosition="start"
+                  sx={{ gap: 1 }}
+                />
+              ))}
+            </Tabs>
+          )}
+        </Toolbar>
+      </AppBar>
+
+      {/* Mobile Drawer */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile
+        }}
+        sx={{
+          display: { xs: "block", md: "none" },
+          "& .MuiDrawer-paper": { boxSizing: "border-box", width: 250 },
+        }}
+      >
+        {drawer}
+      </Drawer>
     </>
   );
-};
+}
 
-// Main App component
-function App() {
+// Main App Layout
+function AppLayout({ children }) {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <AppContent />
-      </Router>
-    </ThemeProvider>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(135deg, #e3f2fd 0%, #ffffff 50%, #f3e5f5 100%)",
+      }}
+    >
+      <Navigation />
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {children}
+      </Container>
+      <ScrollTop />
+    </Box>
+  );
+}
+
+// Route wrapper component for flipbook operations
+function FlipbookRoutes() {
+  const [viewerFile, setViewerFile] = useState(null);
+  const navigate = useNavigate();
+
+  const handleOpenFlipbook = (file) => {
+    setViewerFile(file);
+    navigate("/viewer");
+  };
+
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route
+        path="/generator"
+        element={<FlipbookGenerator onOpenFlipbook={handleOpenFlipbook} />}
+      />
+      <Route path="/viewer" element={<FlipbookViewer file={viewerFile} />} />
+      {/* <Route path="/about" element={<AboutPage />} />
+      <Route path="/help" element={<HelpPage />} />
+      <Route path="/settings" element={<SettingsPage />} /> */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+// Main App Component
+function App() {
+  useEffect(() => {
+    // Initialize PDF.js
+    if (window.pdfjsLib) {
+      console.log("PDF.js initialized in App component");
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js";
+    } else {
+      console.error("PDF.js not found. Loading dynamically...");
+      // Try to load PDF.js dynamically
+      const script = document.createElement("script");
+      script.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js";
+      script.onload = () => {
+        console.log("PDF.js loaded dynamically");
+        window.pdfjsLib = window.pdfjsLib || {};
+        window.pdfjsLib.GlobalWorkerOptions =
+          window.pdfjsLib.GlobalWorkerOptions || {};
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js";
+      };
+      document.head.appendChild(script);
+    }
+  }, []);
+
+  return (
+    <Router>
+      <AppLayout>
+        <FlipbookRoutes />
+      </AppLayout>
+      {/* <Fab
+        id="back-to-top-anchor"
+        sx={{
+          position: "fixed",
+          bottom: 16,
+          right: 16,
+          display: { xs: "none", md: "flex" },
+        }}
+      >
+        <KeyboardArrowUp />
+      </Fab> */}
+      <ScrollTop />
+    </Router>
   );
 }
 
 export default App;
-
-// import {
-//   BrowserRouter as Router,
-//   Routes,
-//   Route,
-//   useNavigate,
-// } from "react-router-dom";
-// import { ThemeProvider, createTheme } from "@mui/material/styles";
-// import CssBaseline from "@mui/material/CssBaseline";
-// import Navbar from "./components/Navbar";
-// import Home from "./pages/Home";
-// import About from "./pages/About";
-// import Contact from "./pages/Contact";
-// import Services from "./pages/Services";
-
-// const theme = createTheme({
-//   palette: {
-//     primary: {
-//       main: "#1976d2",
-//     },
-//     secondary: {
-//       main: "#dc004e",
-//     },
-//   },
-// });
-
-// function App() {
-//   return (
-//     <ThemeProvider theme={theme}>
-//       <CssBaseline />
-//       <Router>
-//         <AppContent />
-//       </Router>
-//     </ThemeProvider>
-//   );
-// }
-
-// function AppContent() {
-//   const navigate = useNavigate();
-
-//   // Function to handle voice commands
-//   const handleVoiceCommand = (command) => {
-//     const lowerCommand = command.toLowerCase();
-
-//     if (lowerCommand.includes("home") || lowerCommand.includes("homepage")) {
-//       navigate("/");
-//     } else if (lowerCommand.includes("about")) {
-//       navigate("/about");
-//     } else if (lowerCommand.includes("contact")) {
-//       navigate("/contact");
-//     } else if (lowerCommand.includes("service")) {
-//       navigate("/services");
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <Navbar onVoiceCommand={handleVoiceCommand} />
-//       <Routes>
-//         <Route path="/" element={<Home />} />
-//         <Route path="/about" element={<About />} />
-//         <Route path="/contact" element={<Contact />} />
-//         <Route path="/services" element={<Services />} />
-//       </Routes>
-//     </div>
-//   );
-// }
-
-// export default App;
