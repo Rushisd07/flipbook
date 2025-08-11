@@ -23,7 +23,6 @@ import {
   ListItemText,
   useMediaQuery,
   useTheme,
-  Fab,
 } from "@mui/material";
 import {
   Book,
@@ -31,7 +30,6 @@ import {
   Visibility,
   Menu as MenuIcon,
   Home,
-  KeyboardArrowUp,
 } from "@mui/icons-material";
 import FlipbookGenerator from "./components/FlipbookGenerator";
 import FlipbookViewer from "./components/FlipbookViewer";
@@ -51,9 +49,6 @@ function Navigation() {
     { label: "Home", path: "/", icon: <Home /> },
     { label: "Generator", path: "/generator", icon: <Upload /> },
     { label: "Viewer", path: "/viewer", icon: <Visibility /> },
-    // { label: "About", path: "/about", icon: <Info /> },
-    // { label: "Help", path: "/help", icon: <Help /> },
-    // { label: "Settings", path: "/settings", icon: <Settings /> },
   ];
 
   const handleDrawerToggle = () => {
@@ -147,7 +142,7 @@ function Navigation() {
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
-                display: { xs: "none", sm: "block" },
+                // display: { xs: "none", sm: "block" },
               }}
             >
               FlipBook Studio
@@ -276,17 +271,6 @@ function App() {
       <AppLayout>
         <FlipbookRoutes />
       </AppLayout>
-      {/* <Fab
-        id="back-to-top-anchor"
-        sx={{
-          position: "fixed",
-          bottom: 16,
-          right: 16,
-          display: { xs: "none", md: "flex" },
-        }}
-      >
-        <KeyboardArrowUp />
-      </Fab> */}
       <ScrollTop />
     </Router>
   );

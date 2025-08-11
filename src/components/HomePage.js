@@ -227,40 +227,6 @@ export default function HomePage() {
           </Paper>
         </Grid>
       </Grid>
-
-      {/* CTA Section */}
-      {/* <Paper
-        sx={{
-          p: 6,
-          textAlign: "center",
-          background: "linear-gradient(45deg, #1976d2, #9c27b0)",
-          color: "white",
-        }}
-      >
-        <Typography variant="h4" gutterBottom fontWeight="bold">
-          Ready to Get Started?
-        </Typography>
-        <Typography variant="h6" paragraph sx={{ opacity: 0.9 }}>
-          Create your first flipbook in minutes
-        </Typography>
-        <Button
-          variant="contained"
-          size="large"
-          startIcon={<Upload />}
-          onClick={() => navigate("/generator")}
-          sx={{
-            bgcolor: "white",
-            color: "#1976d2",
-            "&:hover": {
-              bgcolor: "#f5f5f5",
-            },
-            px: 4,
-            py: 1.5,
-          }}
-        >
-          Start Creating
-        </Button>
-      </Paper> */}
     </Container>
   );
 }
