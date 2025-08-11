@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
 import { useState, useEffect, useRef } from "react";
 import {
   Box,
@@ -36,20 +36,12 @@ export default function FlipbookReader({ data, onClose }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const pagesContainerRef = useRef(null);
 
-  useEffect(() => {
-    // Generate the flipbook when data is loaded
-    if (data && data.pages && pagesContainerRef.current) {
-      generateFlipbookFromData();
-    }
-  }, [data]);
-
-  const generateFlipbookFromData = () => {
+  const generateFlipbookFromData = useCallback(() => {
     const pagesContainer = pagesContainerRef.current;
     if (!pagesContainer) return;
 
     pagesContainer.innerHTML = "";
-
-    data.pages.forEach((pageData, index) => {
+    data.pages.forEach((pageData) => {
       const pageDiv = document.createElement("div");
       pageDiv.className = "page";
 
@@ -65,7 +57,13 @@ export default function FlipbookReader({ data, onClose }) {
     });
 
     setupPages();
-  };
+  }, [data]);
+
+  useEffect(() => {
+    if (data && data.pages && pagesContainerRef.current) {
+      generateFlipbookFromData();
+    }
+  }, [data, generateFlipbookFromData]);
 
   const setupPages = () => {
     const pages = pagesContainerRef.current?.getElementsByClassName("page");
@@ -148,6 +146,8 @@ export default function FlipbookReader({ data, onClose }) {
           } else {
             onClose();
           }
+          break;
+        default:
           break;
       }
     };
